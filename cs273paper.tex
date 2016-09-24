@@ -1,0 +1,125 @@
+\documentclass{article}
+
+\usepackage{graphicx,tikz}
+\usepackage{fullpage}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+%\usepackage{booktabs}
+%\usepackage{color}
+
+%\renewcommand{\baselinestretch}{0.95}
+%\setlength{\textfloatsep}{0.1cm}
+%\setlength{\abovecaptionskip}{0.1cm}
+
+\begin{document}
+
+\title{\Large\bf A New Bound on Sampling for Frequent Itemsets Mining}
+\author{Shiyu Ji\\ shiyu@cs.ucsb.edu}
+\date{}
+\maketitle
+
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{plain}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{plain}
+
+\begin{abstract}
+In this paper we present a new error bound on sampling algorithms for frequent itemsets mining. 
+\end{abstract}
+
+\section{Preliminaries}
+\subsection{Frequency of Itemset}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\D}{\mathcal{D}}
+In this paper we use the notations and definitions from Riondato and Upfal's pioneering work \cite{RU15}. 
+Let $\I$ be the set of items $\I = \{I_1,\cdots,I_N\}$ where $N = |\I|$.
+A transaction $\tau$ is a subset of $\I$ (i.e., $\tau \subseteq \I$).
+An itemset $A$ is a set of items that appear together in a transaction $\tau$, i.e., $A \subseteq \tau$. Clearly any itemset is also a subset of $\I$. 
+Let $\D$ be the set of all the transactions. Denote by $T_\D(A)$ the set of all the transactions in $\D$ that contain the itemset $A$. $T_\D(A)$ is also known as the support set of $A$ in $\D$.
+If $\D$ is a finite set, we can define the frequency of itemset $A$ in $\D$ as the fraction of transactions in $D$ that contain $A$.
+$$f_\D(A) = |T_\D(A)|/|\D|.$$
+Clearly $0 \leq f_\D(A) \leq 1$ for any $A \subseteq \I$.
+
+The goal of our sampling algorithm is to approximate $f_\D(A)$ given an itemset $A$ as accurately as possible.
+
+\subsection{Approximation Algorithms}
+\newcommand{\Smp}{\mathcal{S}}
+An $(\epsilon,\delta)$-approximation algorithm of the frequencies $f_\D(\cdot)$ takes as input all the items $\I$ and outputs a sampled average $f_\Smp(A)$ for each $A\subseteq\I$ such that with probability at least $1-\delta$,
+$$\sup_{A\subseteq\I}|f_\D(A) - f_\Smp(A)| \leq \epsilon.$$
+
+\subsection{Risk Bounds}
+\newcommand{\R}{\mathcal{R}}
+We briefly review some risk bounds in statistical learning theory \cite{BBL05} with the background of frequent itemsets mining. 
+
+For each itemset $A\subseteq\I$, define the indicator function $\phi_A : 2^\I \to \{0, 1\}$ as follows.
+$$\phi_A(X) = \begin{cases}
+1 & \textrm{if $A\subseteq X$}\\
+0 & \textrm{otherwise}\\
+\end{cases}\quad
+B\subseteq\I.$$
+Clearly, the frequency $f_\D(A)$ the \emph{true} average of $\phi_A(X)$ where $X$ goes over all the transactions in $\D$.
+$$f_\D(A) = \frac{1}{|\D|} \sum_{\tau\in\D} \phi_A(\tau).$$
+Similarly let $\Smp$ be the set of the sampled transactions. Then the \emph{sampled} average of $\phi_A(X)$ can be defined as
+$$f_\Smp(A) = \frac{1}{|\Smp|} \sum_{\tau\in\Smp} \phi_A(\tau).$$
+Clearly $f_\Smp(A)$ is the frequency of $A$ appearing in the sampled transactions $\Smp$.
+
+Assume $|\Smp| = n$. For each transaction $\tau_i \in \Smp$, let $\sigma_i$ be a Rademacher random variable taking value from $\{-1, 1\}$ with uniform probability distribution. The $\sigma_i$'s are independent. Assuming $\I$ is finite, we define the sample conditional Rademacher average as follows.
+$$\R_\Smp = \mathbb{E}_\sigma \left[\max_{A\subseteq\I}\frac{1}{n}\sum_{i=1}^n \sigma_i\phi_A(\tau_i)\right],$$
+where $\mathbb{E}_\sigma$ denotes the expectation taken over all the random variables $\sigma_i$'s, conditionally on the sample $\Smp$. 
+
+The following theorem tells us that Rademacher average can be used to upper bound the approximation error, even for the worst case.
+
+\begin{theorem}
+\label{thm:old}
+(Theorem 3.2, \cite{BBL05}) For any $\delta>0$, with probability at least $1-\delta$,
+$$\max_{A\subseteq\I} |f_\D(A) - f_\Smp(A)|\leq 2\R_\Smp + \sqrt{\frac{2\log(2/\delta)}{n}}.$$
+\end{theorem}
+
+If we want to use the upper bound given in Theorem \ref{thm:old} in an approximation, we still need to upper bound the $\R_\Smp$. A classical result is given by Massart \cite{Mas00}.
+
+\begin{theorem}
+\label{thm:massart}
+(Lemma 5.2, \cite{Mas00}) Let $\ell = \max_{A\subseteq\I} [\sum_{i=1}^n\phi_A(\tau_i)^2]^{1/2}$ where each $\tau_i\in\Smp$. Then
+$$\R_\Smp \leq \frac{\ell}{n}\sqrt{2\log N},$$
+where $N = |\I|$ and $n = |\Smp|$.
+\end{theorem}
+Hence we have the following stopping condition for an $(\epsilon,\delta)$-approximation sampling algorithm.
+$$\Delta = \frac{\ell}{n}\sqrt{2\log N} + \sqrt{\frac{2\log(2/\delta)}{n}} \leq \epsilon.$$
+However for many applications the above bound is not tight enough \cite{RU15,RU16}. In the next section we will first review the state-of-art bound on the worst approximation error, and then propose a new bound which seems tighter.
+
+\section{Refining the Upper Bound}
+\label{sec:refine}
+The reason why the bound given in the previous section is often not tight enough in practice is that the $\ell$ defined in Theorem \ref{thm:massart} can be quite large. Suppose there is an itemset $A$ that almost always appears in every transaction in $\D$. Then no matter which sample the algorithm chooses, $\ell$ is roughly $\sqrt{n}$ and thus the upper bound is larger than $\sqrt{2\log N/N}$, which converges to zero quite slowly as $N$ grows. For $N=10000$, the bound is still above 0.028 even all the transactions are sampled. 
+
+Riondato and Upfal \cite{RU15} attempted to give a tighter bound of the Rademacher average $\R_\Smp$. 
+
+\begin{theorem}
+\label{thm:ru}
+(Theorem 3, \cite{RU15}) Let $w : \mathbb{R}^+ \to \mathbb{R}^+$ be the function defined as
+$$w(s) = \frac{1}{s}\log \sum_{A\subseteq\I}\exp\left(\frac{s^2 \sum_{i=1}^n \phi_A(\tau_i)^2}{2n^2}\right).$$
+Then $\R_\Smp \leq \min_{s>0} w(s)$.
+\end{theorem}
+
+{\bf Remark}. Note that in Theorem \ref{thm:ru}, the summation in $w(s)$ takes \emph{exactly} $2^{|\I|}$ terms. However in the original version in \cite{RU15}, the summation can take much less than $2^{|\I|}$ terms. We argue this cannot happen. Based on the proof given in \cite{RU15}, one can reach the inequality as follows.
+$$\exp(s\R_\Smp) \leq \sum_{A\subseteq\I}\exp\left(\frac{s^2\sum_{i=1}^n \phi_A(\tau_i)^2}{2n^2}\right).$$
+Note that on the right hand side, each term in the summation is no less than 1. Hence when taking the logarithm on both sides and dividing by $s$, each of the $2^{|\I|}$ terms cannot be eliminated. Thus the range of the summation cannot be compressed.
+
+Suppose there is a set $\mathcal{V}\subseteq 2^\I$, where $2^\I$ denotes the power set of $\I$, such that
+$$\alpha(s) := \sum_{A\in 2^\I}\exp\left(\frac{s^2\sum_{i=1}^n \phi_A(\tau_i)^2}{2n^2}\right) \leq \sum_{A\in \mathcal{V}}\exp\left(\frac{s^2\sum_{i=1}^n \phi_A(\tau_i)^2}{2n^2}\right) :=\beta(s).$$
+We take the limits as $s$ approaches 0.
+$$2^{|\I|}=\lim_{s\to 0}\alpha(s) \leq \lim_{s\to 0}\beta(s) = |\mathcal{V}|.$$
+Hence $\mathcal{V} = 2^\I$.
+
+%\bibliographystyle{./IEEEtran}
+\bibliographystyle{plain}
+\bibliography{./cs273}
+
+\end{document}
