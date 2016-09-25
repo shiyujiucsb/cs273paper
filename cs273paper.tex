@@ -32,7 +32,7 @@
 \theoremstyle{plain}
 
 \begin{abstract}
-In this paper we present a new error bound on sampling algorithms for frequent itemsets mining. We show that the new bound is asymptotically tighter than the state-of-art bounds, i.e., given the chosen samples, for small enough error probability, the new error bound is roughly half of the existing bounds.
+In this paper we present a new error bound on sampling algorithms for frequent itemsets mining. We show that the new bound is asymptotically tighter than the state-of-art bounds, i.e., given the chosen samples, for small enough error probability, the new error bound is roughly half of the existing bounds. We also give a new approximation algorithm, which is much simpler compared to the existing approximation algorithms, but can also guarantee the worst approximation error with precomputed sample size.
 \end{abstract}
 
 \section{Introduction}
@@ -40,7 +40,7 @@ Frequent Itemsets (FI) mining has been popular in research recently \cite{AIS93,
 In the era of big data, to compute the exact frequencies can be very time consuming. Thus in many cases approximated values are also acceptable \cite{RU15}.
 The state-of-art progressive sampling based FI approximation algorithms \cite{RU15} need an upper bound of the approximation error for the worst case, i.e., the maximum error the algorithm can generate among all the items. The algorithms keep taking new samples until the upper bound is less than the acceptable threshold. Hence how to bound the maximum error as tightly as possible is an interesting problem. The current bounds use some results of Rademacher average in statistical learning theory \cite{Vap98,Vap13,BBL04,BBL05}. 
 However, we find that based on the idea given by \cite{BBL04}, we can develop a new upper bound \emph{without} Rademacher average. 
-We also find that this new bound asymptotically outperforms the existing bounds, i.e., given the chosen samples, as the allowed error probability approaches zero, the new bound is roughly only half of the existing ones. This implies that by using the new bound, a progressive sampling based FI approximation algorithm can reach the guaranteed accuracy with much fewer samples. 
+We also find that this new bound asymptotically outperforms the existing bounds, i.e., given the chosen samples, as the allowed error probability approaches zero, the new bound is roughly only half of the existing ones. This implies that by using the new bound, a progressive sampling based FI approximation algorithm can reach the guaranteed accuracy with much fewer samples. We also notice that there is no parameter in the new bound that needs to be progressively computed. Hence the sample size that will guarantee the worst error can be precomputed.
 
 
 \section{Preliminaries}
@@ -168,6 +168,58 @@ This assures us that the new bound $\Delta_2$ is highly competitive.
 Theorem \ref{thm:ru} can give another upper bound on the worst approximation error. However, since the number of terms in the summation grows exponentially on $|\I|$, to find the minimum is computationally infeasible. Furthermore, even if the minimum $w(s^*)$ is found, let $\Delta_1'$ be the upper bound of this variant defined as 
 $$\Delta_1' := w(s^*) + \sqrt{\frac{2\log(2/\delta)}{n}}.$$
 By fixing the sample $\Smp$, we still have $\lim_{\delta\to 0}\Delta_1'/\Delta_2 = 2$. For small $\delta$, the new bound without Rademacher average still outperforms the existing ones.
+
+\section{Approximation Algortihm with Precomputed Sample Size}
+We observe the new bound given in the previous section:
+$$\Delta_2 := \sqrt{\frac{\log(2N) + \log(1/\delta)}{2n}},$$
+where $N = 2^{\I}$.
+The upper bound $\Delta_2$ can be treated as a function of allowed error probability $\delta$, sample size $n$ and $N = 2^{|\I|}$, all of which are already given. A good news is that there is no parameter that needs to be progressively computed (e.g., $\ell$ in $\Delta_1$). Thus to guarantee an worst approximation error at most $\epsilon$, we only need to make sure $\Delta_2 \leq \epsilon$. By solving it we have
+$$n \geq \frac{1}{2}(\log 2N + \log (1/\delta)).$$
+Hence an $(\epsilon,\delta)$-approximation algorithm takes a very simple form.
+
+\framebox{
+\begin{minipage}{.9\textwidth}
+\underline{\bf Frequent Itemsets Approximation Algorithm}
+
+{\bf Input}: items $\I$, transactional dataset $\D\subseteq 2^\I$, $\epsilon>0$, $\delta>0$.
+
+{\bf Output}: approximated frequencies $\hat{f}_\D(A)$ for each $A\subseteq\I$ s.t. with probability at least $1-\delta$, $|\hat{f}_\D(A)|\leq \epsilon$ for any $A\subseteq\I$.
+
+\begin{enumerate}
+\item $n \gets \frac{1}{2}(\log(2^{|\I|+1}) + \log (1/\delta))$.
+\item $\Smp \gets \emptyset$.
+\item If $n\geq |\D|$, $\Smp \gets \D$; otherwise, choose $n$ items in $\D$ at uniformly random and add them to $\Smp$.
+\item Label the transactions in $\Smp$: $\Smp = \{\tau_1,\cdots,\tau_n\}$.
+\item For each $A\subseteq\I$, compute $\hat{f}_\D(A) \gets \frac{1}{n}\sum_{i=1}^n \phi_A(\tau_i)$.
+\item Return all the $\hat{f}_\D(A)$'s for $A\subseteq\I$.
+\end{enumerate}
+\end{minipage}}
+
+Note that the algorithm above estimates the frequency for every subset in $\I$. Hence it is inefficient when $|\I|$ is large. In practice, we often only care about the frequencies of a few itemsets, e.g., celebrities in a community, influential papers in a field, etc. For this case, we do not have to estimate the frequencies of the rest itemsets. 
+\newcommand{\Ob}{\mathbf{Ob}}
+Denote by $\Ob$ the set of the itemsets to be observed. Then the worst approximation error is defined as the maximum error on every itemset in $\Ob$. By the same reasoning in the derivation of $\Delta_2$, we have the adjusted new bound:
+$$\Delta_2' := \sqrt{\frac{\log(2|\Ob|) + \log(1/\delta)}{2n}}.$$
+Note that since $\Ob$ is a subset of $2^{|\I|}$, this bound $\Delta_2'$ is tighter than $\Delta_2$. The approximation algorithm will also be revised as follows.
+
+\framebox{
+\begin{minipage}{.9\textwidth}
+\underline{\bf Frequent Itemsets Approximation Algorithm with Observed Items}
+
+{\bf Input}: all the items $\I$, the observed items $\Ob\subseteq 2^\I$, transactional dataset $\D\subseteq 2^\I$, $\epsilon>0$, $\delta>0$.
+
+{\bf Output}: approximated frequencies $\hat{f}_\D(A)$ for each $A\in\Ob$ s.t. with probability at least $1-\delta$, $|\hat{f}_\D(A)|\leq \epsilon$ for any $A\in\Ob$.
+
+\begin{enumerate}
+\item $n \gets \frac{1}{2}(\log(2|\Ob|) + \log (1/\delta))$.
+\item $\Smp \gets \emptyset$.
+\item If $n\geq |\D|$, $\Smp \gets \D$; otherwise, choose $n$ items in $\D$ at uniformly random and add them to $\Smp$.
+\item Label the transactions in $\Smp$: $\Smp = \{\tau_1,\cdots,\tau_n\}$.
+\item For each $A\in\Ob$, compute $\hat{f}_\D(A) \gets \frac{1}{n}\sum_{i=1}^n \phi_A(\tau_i)$.
+\item Return all the $\hat{f}_\D(A)$'s for $A\in\Ob$.
+\end{enumerate}
+\end{minipage}}
+
+Note that we do not have to estimate for any itemset which is out of the observed ones $\Ob$.
 
 %\bibliographystyle{./IEEEtran}
 \bibliographystyle{plain}
