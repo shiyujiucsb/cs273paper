@@ -50,7 +50,7 @@ We also find that this new bound asymptotically outperforms the existing bounds,
 In this paper we use the notations and definitions from Riondato and Upfal's pioneering work \cite{RU15}. 
 Let $\I$ be the set of items. A transaction $\tau$ is a subset of $\I$ (i.e., $\tau \subseteq \I$).
 An itemset $A$ is a set of items that appear together in a transaction $\tau$, i.e., $A \subseteq \tau$. Clearly any itemset is also a subset of $\I$. 
-Let $\D$ be the set of all the transactions. In this paper we always assume $\D$ is a finite set. Denote by $T_\D(A)$ the set of all the transactions in $\D$ that contain the itemset $A$. $T_\D(A)$ is also known as the support set of $A$ in $\D$.
+Let transactional dataset $\D$ be the set of all the transactions. In this paper we always assume $\D$ is a finite set. Denote by $T_\D(A)$ the set of all the transactions in $\D$ that contain the itemset $A$. $T_\D(A)$ is also known as the support set of $A$ in $\D$.
 If $\D$ is a finite set, we can define the frequency of itemset $A$ in $\D$ as the fraction of transactions in $\D$ that contain $A$.
 $$f_\D(A) = |T_\D(A)|/|\D|.$$
 Clearly $0 \leq f_\D(A) \leq 1$ for any $A \subseteq \I$.
@@ -172,7 +172,7 @@ By fixing the sample $\Smp$, we still have $\lim_{\delta\to 0}\Delta_1'/\Delta_2
 \section{Approximation Algortihm with Precomputed Sample Size}
 We observe the new bound given in the previous section:
 $$\Delta_2 := \sqrt{\frac{\log(2N) + \log(1/\delta)}{2n}},$$
-where $N = 2^{\I}$.
+where $N = 2^{|\I|}$.
 The upper bound $\Delta_2$ can be treated as a function of allowed error probability $\delta$, sample size $n$ and $N = 2^{|\I|}$, all of which are already given. A good news is that there is no parameter that needs to be progressively computed (e.g., $\ell$ in $\Delta_1$). Thus to guarantee an worst approximation error at most $\epsilon$, we only need to make sure $\Delta_2 \leq \epsilon$. By solving it we have
 $$n \geq \frac{1}{2}(\log 2N + \log (1/\delta)).$$
 Hence an $(\epsilon,\delta)$-approximation algorithm takes a very simple form.
@@ -186,7 +186,7 @@ Hence an $(\epsilon,\delta)$-approximation algorithm takes a very simple form.
 {\bf Output}: approximated frequencies $\hat{f}_\D(A)$ for each $A\subseteq\I$ s.t. with probability at least $1-\delta$, $|\hat{f}_\D(A)|\leq \epsilon$ for any $A\subseteq\I$.
 
 \begin{enumerate}
-\item $n \gets \frac{1}{2}(\log(2^{|\I|+1}) + \log (1/\delta))$.
+\item $n \gets \lceil\frac{1}{2}(\log(2^{|\I|+1}) + \log (1/\delta))\rceil$.
 \item $\Smp \gets \emptyset$.
 \item If $n\geq |\D|$, $\Smp \gets \D$; otherwise, choose $n$ items in $\D$ at uniformly random and add them to $\Smp$.
 \item Label the transactions in $\Smp$: $\Smp = \{\tau_1,\cdots,\tau_n\}$.
@@ -199,7 +199,7 @@ Note that the algorithm above estimates the frequency for every subset in $\I$. 
 \newcommand{\Ob}{\mathbf{Ob}}
 Denote by $\Ob$ the set of the itemsets to be observed. Then the worst approximation error is defined as the maximum error on every itemset in $\Ob$. By the same reasoning in the derivation of $\Delta_2$, we have the adjusted new bound:
 $$\Delta_2' := \sqrt{\frac{\log(2|\Ob|) + \log(1/\delta)}{2n}}.$$
-Note that since $\Ob$ is a subset of $2^{|\I|}$, this bound $\Delta_2'$ is tighter than $\Delta_2$. The approximation algorithm will also be revised as follows.
+Note that since $\Ob$ is a subset of $2^{\I}$, this bound $\Delta_2'$ is tighter than $\Delta_2$. The approximation algorithm will also be revised as follows.
 
 \framebox{
 \begin{minipage}{.9\textwidth}
@@ -210,7 +210,7 @@ Note that since $\Ob$ is a subset of $2^{|\I|}$, this bound $\Delta_2'$ is tight
 {\bf Output}: approximated frequencies $\hat{f}_\D(A)$ for each $A\in\Ob$ s.t. with probability at least $1-\delta$, $|\hat{f}_\D(A)|\leq \epsilon$ for any $A\in\Ob$.
 
 \begin{enumerate}
-\item $n \gets \frac{1}{2}(\log(2|\Ob|) + \log (1/\delta))$.
+\item $n \gets \lceil\frac{1}{2}(\log(2|\Ob|) + \log (1/\delta))\rceil$.
 \item $\Smp \gets \emptyset$.
 \item If $n\geq |\D|$, $\Smp \gets \D$; otherwise, choose $n$ items in $\D$ at uniformly random and add them to $\Smp$.
 \item Label the transactions in $\Smp$: $\Smp = \{\tau_1,\cdots,\tau_n\}$.
