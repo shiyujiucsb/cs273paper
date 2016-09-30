@@ -188,7 +188,7 @@ Hence an $(\epsilon,\delta)$-approximation algorithm takes a very simple form.
 \begin{enumerate}
 \item $n \gets \lceil\frac{1}{2}(\log(2^{|\I|+1}) + \log (1/\delta))\rceil$.
 \item $\Smp \gets \emptyset$.
-\item If $n\geq |\D|$, $\Smp \gets \D$; otherwise, choose $n$ items in $\D$ at uniformly random and add them to $\Smp$.
+\item If $n\geq |\D|$, $\Smp \gets \D$; otherwise, choose $n$ itemsets in $\D$ at uniformly random and add them to $\Smp$.
 \item Label the transactions in $\Smp$: $\Smp = \{\tau_1,\cdots,\tau_n\}$.
 \item For each $A\subseteq\I$, compute $\hat{f}_\D(A) \gets \frac{1}{n}\sum_{i=1}^n \phi_A(\tau_i)$.
 \item Return all the $\hat{f}_\D(A)$'s for $A\subseteq\I$.
@@ -212,7 +212,7 @@ Note that since $\Ob$ is a subset of $2^{\I}$, this bound $\Delta_2'$ is tighter
 \begin{enumerate}
 \item $n \gets \lceil\frac{1}{2}(\log(2|\Ob|) + \log (1/\delta))\rceil$.
 \item $\Smp \gets \emptyset$.
-\item If $n\geq |\D|$, $\Smp \gets \D$; otherwise, choose $n$ items in $\D$ at uniformly random and add them to $\Smp$.
+\item If $n\geq |\D|$, $\Smp \gets \D$; otherwise, choose $n$ itemsets in $\D$ at uniformly random and add them to $\Smp$.
 \item Label the transactions in $\Smp$: $\Smp = \{\tau_1,\cdots,\tau_n\}$.
 \item For each $A\in\Ob$, compute $\hat{f}_\D(A) \gets \frac{1}{n}\sum_{i=1}^n \phi_A(\tau_i)$.
 \item Return all the $\hat{f}_\D(A)$'s for $A\in\Ob$.
@@ -220,6 +220,30 @@ Note that since $\Ob$ is a subset of $2^{\I}$, this bound $\Delta_2'$ is tighter
 \end{minipage}}
 
 Note that we do not have to estimate for any itemset which is out of the observed ones $\Ob$.
+
+\section{Approximating Top-$k$ Frequent Itemsets}
+In practice we often need to find out the top-$k$ frequent itemsets among the given candidates $\Ob$. We can slightly revise the algorithm given in the previous section to approximate the $k$ most frequent itemsets. A new problem here is how to determine the approximation error $\epsilon$, which should be less than the distance between the $k$-th and $(k+1)$-th most frequent itemsets. It is also possible that these two itemsets have the same frequency. Combining these cases, a progressive sampling approximation algorithm can be given as follows:
+
+\framebox{
+\begin{minipage}{.9\textwidth}
+\underline{\bf Top-$k$ Frequent Itemsets Approximation Algorithm with Observed Items}
+
+{\bf Input}: all the items $\I$, the observed items $\Ob\subseteq 2^\I$, transactional dataset $\D\subseteq 2^\I$, sampling increase $\Delta n$, $k>0$, $\delta>0$.
+
+{\bf Output}: $k$ itemsets among $\Ob$ that have the highest frequencies with probability at least $1-\delta$.
+
+\begin{enumerate}
+\item $n\gets 0$. $\hat{f}_\D(A) \gets 0$ for any $A\in\Ob$.
+\item $\Smp \gets \emptyset$.
+\item If $n\geq |\D|$, $\Smp \gets \D$; otherwise, choose $\Delta n$ itemsets from $\D$ at uniformly random. Denote by $\Delta \Smp$ the chosen $\Delta n$ itemsets.
+\item Label the transactions in $\Delta\Smp$: $\Delta\Smp = \{\tau_1,\cdots,\tau_{\Delta n}\}$.
+\item For each $A\in\Ob$, compute $\hat{f}_\D(A) \gets \frac{1}{n+\Delta n}\left(n\cdot\hat{f}_\D(A)+\sum_{i=1}^{\Delta n}\phi_A(\tau_i)\right)$.
+\item $n \gets n+\Delta n$. $\Smp \gets \Smp \cup \Delta \Smp$
+\item $\epsilon \gets \sqrt{\frac{\log(2|\Ob|) + \log(1/\delta)}{2n}}$.
+\item If $\epsilon < d$, where $d$ is the distance between the frequencies of the $k$-th and $(k+1)$-th most frequent itemset in $\Ob$, or $\Smp = \D$, then return the top-$k$ results (tie-breaking when necessary). Otherwise, go to Step 3.
+\end{enumerate}
+\end{minipage}
+}
 
 %\bibliographystyle{./IEEEtran}
 \bibliographystyle{plain}
