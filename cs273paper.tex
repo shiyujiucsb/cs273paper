@@ -63,6 +63,8 @@ An $(\epsilon,\delta)$-approximation algorithm of the frequencies $f_\D(\cdot)$ 
 $$\max_{A\subseteq\I}|f_\D(A) - f_\Smp(A)| \leq \epsilon.$$
 We often use progressive sampling \cite{RU15,RU16}, i.e., to keep taking more samples until a stopping condition is reached. A stopping condition usually takes the form $\Delta(n, \delta) \leq \epsilon$, where $n$ is the number of samples that have been taken, and $\Delta$ is an upper bound of the worst approximation error given by statistical learning theory. Note that $\Delta$ is usually a function of $n$ and $\delta$.
 
+There is a variant called top-$k$ approximation, which returns the $k$ most frequent itemsets among the observed ones based on the approximated frequencies. This is quite popular in practice since we are often only interested in the most common itemsets. 
+
 \subsection{Risk Bounds}
 \label{sec:rb}
 \newcommand{\R}{\mathcal{R}}
@@ -235,15 +237,17 @@ In practice we often need to find out the top-$k$ frequent itemsets among the gi
 \begin{enumerate}
 \item $n\gets 0$. $\hat{f}_\D(A) \gets 0$ for any $A\in\Ob$.
 \item $\Smp \gets \emptyset$.
-\item If $n\geq |\D|$, $\Smp \gets \D$; otherwise, choose $\Delta n$ itemsets from $\D$ at uniformly random. Denote by $\Delta \Smp$ the chosen $\Delta n$ itemsets.
+\item If $n\geq |\D|$, $\Smp \gets \D$ and go to Step 8; otherwise, choose $\Delta n$ itemsets from $\D$ at uniformly random, and denote by $\Delta \Smp$ the chosen $\Delta n$ itemsets.
 \item Label the transactions in $\Delta\Smp$: $\Delta\Smp = \{\tau_1,\cdots,\tau_{\Delta n}\}$.
 \item For each $A\in\Ob$, compute $\hat{f}_\D(A) \gets \frac{1}{n+\Delta n}\left(n\cdot\hat{f}_\D(A)+\sum_{i=1}^{\Delta n}\phi_A(\tau_i)\right)$.
 \item $n \gets n+\Delta n$. $\Smp \gets \Smp \cup \Delta \Smp$
 \item $\epsilon \gets \sqrt{\frac{\log(2|\Ob|) + \log(1/\delta)}{2n}}$.
-\item If $\epsilon < d$, where $d$ is the distance between the frequencies of the $k$-th and $(k+1)$-th most frequent itemset in $\Ob$, or $\Smp = \D$, then return the top-$k$ results (tie-breaking when necessary). Otherwise, go to Step 3.
+\item If $\epsilon < d$, where $d$ is the distance between the approximated frequencies $\hat{f}_\D(\cdot)$ of the $k$-th and $(k+1)$-th most frequent itemsets in $\Ob$, or $\Smp = \D$, then return the top-$k$ results (tie-breaking when necessary). Otherwise, go to Step 3.
 \end{enumerate}
 \end{minipage}
 }
+
+Note that in out top-$k$ approximation algorithm, the stopping condition depends on the frequency distance between the $k$-th and $(k+1)$-th most frequent itemsets. If these two frequencies tie, it is likely that many samples will  be needed since we cannot distinguish them based on approximated frequencies. Hence we require the number of samples should not exceed $|\D|$. If $|\D|$ samples are needed, we can compute the exact frequencies and apply tie-breaking rules on the ranked results.
 
 %\bibliographystyle{./IEEEtran}
 \bibliographystyle{plain}
