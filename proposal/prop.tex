@@ -1,0 +1,98 @@
+\documentclass{article}
+
+\usepackage{graphicx,tikz}
+\usepackage{fullpage}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+%\usepackage{booktabs}
+%\usepackage{color}
+
+%\renewcommand{\baselinestretch}{0.95}
+%\setlength{\textfloatsep}{0.1cm}
+%\setlength{\abovecaptionskip}{0.1cm}
+
+\begin{document}
+
+\title{\Large\bf New Sampling-based Approximation Algorithms for Frequent Itemsets Mining}
+\author{Shiyu Ji, Kun Wan\\ \{shiyu, kun\}@cs.ucsb.edu}
+\date{}
+\maketitle
+
+\newtheorem{definition}{Definition}
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{plain}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{plain}
+
+\section{Problem Statement}
+\subsection{Introduction}
+Frequent Itemsets (FI) mining has been popular in research recently \cite{AIS93, HCX07, RU15}. The goal of FI mining is to find out the items that most frequently appear in the observed transactions, e.g., the researchers who are the most prolific in writing papers with others, the patterns that appear frequently in a long piece of genetic code, etc. 
+
+In the era of big data, to compute the exact frequencies can be very time consuming. Thus in many cases approximated values are also acceptable \cite{RU15}.
+For FI mining in large scaled transactional dataset, we often take samplings on the transactions, and compute the frequencies of the itemsets among the sampled transactions as approximated results of their true frequencies among all the transactions. Usually the sampling size is much less than the scale of all the transactions, and the approximations can achieve acceptable precision. Thus FI approximation can be useful in practice.
+
+The state-of-art progressive sampling based FI approximation algorithms \cite{RU15} need an upper bound of the approximation error for the worst case, i.e., the maximum error the algorithm can generate among all the items. The algorithms keep taking new samples until the upper bound is less than the acceptable threshold. Hence how to bound the maximum error as tightly as possible is an interesting problem. The current bounds use some results of Rademacher average in statistical learning theory \cite{Vap98,Vap13,BBL04,BBL05}. 
+However, we find that based on the idea given by \cite{BBL04}, we can develop a new upper bound \emph{without} Rademacher average. 
+We also find that this new bound is asymptotically tighter than the existing bounds, i.e., given the chosen samples, as the allowed error probability approaches zero, the new bound is roughly only half of the existing ones. This implies that by using the new bound, a progressive sampling based FI approximation algorithm can reach the guaranteed accuracy with much fewer samples. We also notice that there is no parameter in the new bound that needs to be progressively computed. Hence the sample size that will guarantee the worst error can be precomputed.
+
+Based on the similar idea, we also consider the top-$k$ FI mining problem, which seeks for the $k$ most frequent itemsets in the observed ones. We need to decide when the sampling should stop. The number of the samples transactions is enough if the worst-case error upper bound is less than the frequency gap between the $k$-th and the $(k+1)$-th most frequent itemsets. Hence we propose a progressive approximation algorithm to address the top-$k$ FI mining problem.
+
+{\bf Our Plan}. We plan to give a new worst-case error upper bound that is asymptotically tighter than the state-of-art bounds, and propose an approximation algorithm which can guarantee the worst-case error upper bound with precomputed sample size. We will also give a progressive sampling algorithm to find the top-$k$ most frequent itemsets. We will need experiments on real data sets to evaluate the performance of our algorithms, and compare our results with the state-of-art approximation algorithms.
+
+\subsection{Related Works}
+\label{sec:rw}
+Sampling-based frequent itemset approximation has been studied extensively by the researchers. The first works on this problem used heuristic methods to progressively approximate the frequencies \cite{CHS02,CCY05,Parth02}. There were no guarantee on the worst-case error upper bound. To fix this, Riondato and Upfal were the first to propose FI approximation algorithms that could guarantee the worst error bounds by using results of Vapnik-Chervonenkis (VC) dimension \cite{RU12,RU14} and Rademacher average \cite{RU15}. Note that in statistical learning theory VC dimension and Rademacher average are usually used to address the worst-case error upper bound for \emph{infinite case}, i.e., the number of possible functions in the learning model is infinite \cite{BBL04}. However in the case of FI mining, since there are only \emph{finite} itemsets, it is possible to develop bounds without VC dimension or Rademacher average \cite{BBL04}. In this paper we apply this idea on FI mining problem. Riondato et al. also considered using parallelism in FI mining \cite{RDF12}, which is an orthogonal topic to sampling-based FI approximation.
+
+In practice we are often only interested in the most frequent itemsets. Thus top-$k$ FI mining is a popular research topic with many research works \cite{PRU10,SW02,RU15,RV14}. 
+
+\section{Data Set}
+For consistency, we choose FIMI'03 data repository \cite{GZ04}, the real-world data set from \cite{RU15} (the data repository is available at \texttt{http://fimi.ua.ac.be/data/}). The item and transaction data sizes of the FIMI datasets are given in Table \ref{tab:data}.
+
+\begin{table}[!t]
+\centering
+\begin{tabular}{l | r r}
+\hline
+Name & No. of Transactions & No. of items \\
+\hline
+accidents & 340183 & 468 \\
+chess & 3196 & 75 \\
+connect & 67557 & 129 \\
+kosarak & 990002 & 41270 \\
+mushroom & 8124 & 119 \\
+pumsb & 49046 & 7116 \\
+pumsb star & 49046 &  7116 \\
+retail  & 88162 & 16470 \\
+\hline
+
+\end{tabular}
+\caption{Dataset characteristics}
+\end{table}
+
+\section{Deliverables}
+We plan to deliver the documents as follows:
+\begin{itemize}
+\item A report or paper about our new bounds and algorithms, and experiment results.
+\item Source code of our experiments on real data sets.
+\end{itemize}
+
+\section{Milestones}
+As our plan, we list the possible milestones in the future as follows:
+\begin{itemize}
+\item Establish a new worst-case error upper bound and do the proof work.
+\item Propose sampling-based approximation algorithms, i.e., estimating frequency for each itemset, approximating the top-$k$ frequent itemsets, etc.
+\item Evaluate our algorithms with real-world data sets, and compare our results with the existing works like \cite{RU15}.
+\end{itemize}
+
+
+%\bibliographystyle{./IEEEtran}
+\bibliographystyle{plain}
+\bibliography{./prop}
+
+\end{document}
