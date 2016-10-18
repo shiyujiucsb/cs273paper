@@ -36,7 +36,7 @@ In this paper we present a new error bound on sampling algorithms for frequent i
 \end{abstract}
 
 \section{Introduction}
-Frequent Itemsets (FI) mining has been popular in research recently \cite{AIS93, HCX07, RU15}. The goal of FI mining is to find out the items that most frequently appear in the observed transactions, e.g., the researchers who are the most prolific in writing papers with others, the patterns that appear frequently in a long piece of genetic code, etc. 
+Frequent Itemsets (FI) mining has been popular in research recently \cite{AIS93, HCX07, RU15}. The goal of FI mining is to find out the items that most frequently appear in the observed transactions, e.g., the researchers who are the most prolific in writing papers with others, the patterns that appear frequently in long pieces of genetic code, etc. 
 
 In the era of big data, to compute the exact frequencies can be very time consuming. Thus in many cases approximated values are also acceptable \cite{RU15}.
 For FI mining in large scaled transactional dataset, we often take samplings on the transactions, and compute the frequencies of the itemsets among the sampled transactions as approximated results of their true frequencies among all the transactions. Usually the sampling size is much less than the scale of all the transactions, and the approximations can achieve acceptable precision. Thus FI approximation can be useful in practice.

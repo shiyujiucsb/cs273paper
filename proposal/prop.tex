@@ -52,8 +52,8 @@ Sampling-based frequent itemset approximation has been studied extensively by th
 
 In practice we are often only interested in the most frequent itemsets. Thus top-$k$ FI mining is a popular research topic with many research works \cite{PRU10,SW02,RU15,RV14}. 
 
-\section{Data Set}
-For consistency, we choose FIMI'03 data repository \cite{GZ04}, the real-world data set from \cite{RU15} (the data repository is available at \texttt{http://fimi.ua.ac.be/data/}). The item and transaction data sizes of the FIMI datasets are given in Table \ref{tab:data}.
+\section{Data Sets}
+For consistency, we choose FIMI'03 data repository \cite{GZ04}, the real-world data set from \cite{RU15} (the data repository is available at \texttt{http://fimi.ua.ac.be/data/}). The item and transaction data sizes of the FIMI datasets are given in Table \ref{tab:data}. We will use these data sets to evaluate the samples sizes and worst case errors of our algorithms, and compare our results with the state-of-art algorithms.
 
 \begin{table}[!t]
 \centering
@@ -73,6 +73,7 @@ retail  & 88162 & 16470 \\
 
 \end{tabular}
 \caption{Dataset characteristics}
+\label{tab:data}
 \end{table}
 
 \section{Deliverables}
