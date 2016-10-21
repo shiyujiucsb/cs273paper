@@ -47,15 +47,18 @@ We also find that this new bound is asymptotically tighter than the existing bou
 
 Based on the similar idea, we also consider the top-$k$ FI mining problem, which seeks for the $k$ most frequent itemsets in the observed ones. We need to decide when the sampling should stop. The number of the samples transactions is enough if the worst-case error upper bound is less than the frequency gap between the $k$-th and the $(k+1)$-th most frequent itemsets. Hence we propose a progressive approximation algorithm to address the top-$k$ FI mining problem.
 
-{\bf Our Contributions}. We give a new worst-case error upper bound that is asymptotically tighter than the state-of-art bounds, and propose an approximation algorithm which can guarantee the worst-case error upper bound with precomputed sample size. We also give a progressive sampling algorithm to find the top-$k$ most frequent itemsets.
+{\bf Our Contributions}. We give a new worst-case error upper bound that is asymptotically tighter than the state-of-art bounds, and propose an approximation algorithm which can guarantee the worst-case error upper bound with precomputed sample size. We also give a progressive sampling algorithm to find the top-$k$ most frequent itemsets. Combining with existing methods, our algorithms can approximate the frequent itemsets accurately and efficiently.
 
 The rest of this paper is organized as follows. Section \ref{sec:rw} reviews the related research works. Section \ref{sec:prlm} introduces the notations and preliminaries throughout this paper. Section \ref{sec:refine} gives our new worst-case error upper bounds and compares them with the existing ones. Section \ref{sec:algs} proposes our approximation algorithms based on our upper bounds.
 
 \section{Related Works}
 \label{sec:rw}
+Frequent Itemset Mining has been very popular in the communities of information retrieval and data mining \cite{LRU14}. Unsurprisingly, many algorithms that can compute the exact frequencies have been proposed, e.g., Park-Chen-Yu's algorithm \cite{PCY95}, Multistage and algorithms \cite{FSG99}.
+However it is very challenging to deal with large scaled data sets with limited main memory. Thus the classical exact algorithms may not fit well in practice. As a result, how to approximate the frequent itemsets by sampling has become interesting, since usually the sample size is much less than the entire data scale.
+
 Sampling-based frequent itemset approximation has been studied extensively by the researchers. The first works on this problem used heuristic methods to progressively approximate the frequencies \cite{CHS02,CCY05,Parth02}. There were no guarantee on the worst-case error upper bound. To fix this, Riondato and Upfal were the first to propose FI approximation algorithms that could guarantee the worst error bounds by using results of Vapnik-Chervonenkis (VC) dimension \cite{RU12,RU14} and Rademacher average \cite{RU15}. Note that in statistical learning theory VC dimension and Rademacher average are usually used to address the worst-case error upper bound for \emph{infinite case}, i.e., the number of possible functions in the learning model is infinite \cite{BBL04}. However in the case of FI mining, since there are only \emph{finite} itemsets, it is possible to develop bounds without VC dimension or Rademacher average \cite{BBL04}. In this paper we apply this idea on FI mining problem. Riondato et al. also considered using parallelism in FI mining \cite{RDF12}, which is an orthogonal topic to sampling-based FI approximation.
 
-In practice we are often only interested in the most frequent itemsets. Thus top-$k$ FI mining is a popular research topic with many research works \cite{PRU10,SW02,RU15,RV14}. 
+In practice we are often only interested in the most frequent itemsets. Thus top-$k$ FI mining is a popular research topic with many research works \cite{PRU10,SW02,RU15,RV14}. Another interesting question is to find all itemsets with frequencies larger than a threshold. Savasere, Omiecinski, and Navathe \cite{SON95} give an two-pass algorithm (called SON algorithm) that can find the exact solutions. We will use SON algorithm to significantly reduce the number of itemsets to be observed, and then apply our algorithms to approximate the frequencies and select the top $k$ ones. Also Toivonen’s Algorithm \cite{Toi96} is an alternative way to find the most frequent itemsets given a threshold.
 
 \section{Preliminaries}
 \label{sec:prlm}
@@ -239,7 +242,7 @@ Note that since $\Ob$ is a subset of $2^{\I}$, this bound $\Delta_2'$ is tighter
 \end{enumerate}
 \end{minipage}}
 
-Note that we do not have to estimate for any itemset which is out of the observed ones $\Ob$.
+Note that we do not have to estimate for any itemset which is out of the observed ones $\Ob$. Also we need the size of $\Ob$ to be as small as possible. Depending on the practical requirements, the choice of $\Ob$ can vary a lot. We will propose a SON-based idea in the next section. However many other methods can be tried, e.g., most potentially frequent itemsets can be suggested by the users' experience or historic records.
 
 \subsection{Approximating Top-$k$ Frequent Itemsets}
 In practice we often need to find out the top-$k$ frequent itemsets among the given candidates $\Ob$. We can slightly revise the algorithm given in the previous section to approximate the $k$ most frequent itemsets. A new problem here is how to determine the approximation error $\epsilon$, which should be less than the distance between the $k$-th and $(k+1)$-th most frequent itemsets. It is also possible that these two itemsets have the same frequency. Combining these cases, a progressive sampling approximation algorithm can be given as follows:
@@ -266,6 +269,13 @@ In practice we often need to find out the top-$k$ frequent itemsets among the gi
 }
 
 Note that in out top-$k$ approximation algorithm, the stopping condition depends on the frequency distance between the $k$-th and $(k+1)$-th most frequent itemsets. If these two frequencies tie, it is likely that many samples will  be needed since we cannot distinguish them based on approximated frequencies. Hence we require the number of samples should not exceed $|\D|$. If $|\D|$ samples are needed, we can compute the exact frequencies and apply tie-breaking rules on the ranked results.
+
+To be efficient, we must ensure the size of $\Ob$ is small enough. One possible way is as follows:
+\begin{enumerate}
+\item We first only consider the itemsets with single item. The item size is usually small enough (i.e., $|\I|$) that can be put in main memory. We approximate their frequencies, and take the threshold $T$ as the $k$-th largest frequency among the single items. Usually people are only interested in small $k$, e.g., 10 to 100, which is much less than $|\I|$.
+\item Then we use SON algorithm to exactly find the itemsets with frequencies at least $T$. For efficiency, in SON we only consider the itemsets with 2 items, like what \cite{LRU14} did. The reason is that the itemsets of sizes larger than 2 usually have much lower frequencies than pairs. Clearly SON algorithm can find at most $k^2$ candidate itemsets.
+\item We use our (top-$k$) approximation algorithms to estimate the frequencies of the candidate itemsets (or select the top-$k$ ones).
+\end{enumerate}
 
 %\bibliographystyle{./IEEEtran}
 \bibliographystyle{plain}
