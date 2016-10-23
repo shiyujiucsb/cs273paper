@@ -32,7 +32,7 @@
 \theoremstyle{plain}
 
 \begin{abstract}
-In this paper we present a new error bound on sampling algorithms for frequent itemsets mining. We show that the new bound is asymptotically tighter than the state-of-art bounds, i.e., given the chosen samples, for small enough error probability, the new error bound is roughly half of the existing bounds. We also give a new approximation algorithm, which is much simpler compared to the existing approximation algorithms, but can also guarantee the worst approximation error with precomputed sample size.
+In this paper we present a new error bound on sampling algorithms for frequent itemsets mining. We show that the new bound is asymptotically tighter than the state-of-art bounds, i.e., given the chosen samples, for small enough error probability, the new error bound is roughly half of the existing bounds. Based on the new bound, we give a new approximation algorithm, which is much simpler compared to the existing approximation algorithms, but can also guarantee the worst approximation error with precomputed sample size. We also give an algorithm which can approximate the top-$k$ frequent itemsets with high accuracy and efficiency.
 \end{abstract}
 
 \section{Introduction}
@@ -245,7 +245,14 @@ Note that since $\Ob$ is a subset of $2^{\I}$, this bound $\Delta_2'$ is tighter
 Note that we do not have to estimate for any itemset which is out of the observed ones $\Ob$. Also we need the size of $\Ob$ to be as small as possible. Depending on the practical requirements, the choice of $\Ob$ can vary a lot. We will give a SON-based idea in the next section. However many other methods can be tried, e.g., most potentially frequent itemsets can be suggested by the users' experience or historic records.
 
 \subsection{Approximating Top-$k$ Frequent Itemsets}
-In practice we often need to find out the top-$k$ frequent itemsets among the given candidates $\Ob$. We can slightly revise the algorithm given in the previous section to approximate the $k$ most frequent itemsets. A new problem here is how to determine the approximation error $\epsilon$, which should be less than the distance between the $k$-th and $(k+1)$-th most frequent itemsets. It is also possible that these two itemsets have the same frequency. Combining these cases, a progressive sampling approximation algorithm can be given as follows:
+In practice we often need to find out the top-$k$ frequent itemsets among the given candidates $\Ob$. We can slightly revise the algorithm given in the previous section to approximate the $k$ most frequent itemsets. A new problem here is how to give the stopping condition. Note that if we only need the top-$k$ frequent itemsets, then our approximation can stop when the members of top-$k$ FIs are fixed with high probability (i.e., at least $1-\delta$). In particular, if with probability at least $1-\delta$, the true frequency of any itemset will not surpass the middle point of the $k$-th and $(k+1)$-th largest approximated frequencies, the $k$ itemsets with largest approximated frequencies should probably be the correct top $k$ ones. By Hoeffding's inequality and union bounds, given the approximated frequencies with $n$ samples, the probability $p$ that there exists an itemset, whose approximated frequency and true frequency are on the different sides of the middle point of the $k$-th and $(k+1)$-th largest approximated frequencies, can be upper bounded as follows: 
+$$\begin{aligned}
+p&=\Pr[\bigvee_{A\in\Ob} (f_\D(A) < m < \hat{f}_\D(A)) \vee (f_\D(A) > m > \hat{f}_\D(A)) ] \\
+&\leq \sum_{A\in\Ob} \exp\left(-2n(\hat{f}_\D(A) - m)^2\right),
+\end{aligned}$$
+where $m$ is the frequency middle point as described above. 
+Hence we can let the sampling stop when the upper bound of $p$ is less than $\delta$. 
+Combining these ideas, a progressive sampling approximation algorithm can be given as follows:
 
 \framebox{
 \begin{minipage}{.9\textwidth}
@@ -262,13 +269,16 @@ In practice we often need to find out the top-$k$ frequent itemsets among the gi
 \item Label the transactions in $\Delta\Smp$: $\Delta\Smp = \{\tau_1,\cdots,\tau_{\Delta n}\}$.
 \item For each $A\in\Ob$, compute $\hat{f}_\D(A) \gets \frac{1}{n+\Delta n}\left(n\cdot\hat{f}_\D(A)+\sum_{i=1}^{\Delta n}\phi_A(\tau_i)\right)$.
 \item $n \gets n+\Delta n$. $\Smp \gets \Smp \cup \Delta \Smp$
-\item $\epsilon \gets \sqrt{\frac{\log(2|\Ob|) + \log(1/\delta)}{2n}}$.
-\item If $\epsilon < d$, where $d$ is the distance between the approximated frequencies $\hat{f}_\D(\cdot)$ of the $k$-th and $(k+1)$-th most frequent itemsets in $\Ob$, or $\Smp = \D$, then return the top-$k$ results (tie-breaking when necessary). Otherwise, go to Step 3.
+\item Let $\hat{f}[k]$ and $\hat{f}[k+1]$ be the $k$-th and $(k+1)$-th largest approximated frequencies in $\Ob$ respectively. Compute their middle point $m \gets \frac{1}{2}(\hat{f}[k] + \hat{f}[k+1])$.
+\item If $\Smp = \D$, then compute the exact frequencies and return the top-$k$ frequent itemsets (tie-breaking when necessary). Otherwise, go to the next step.
+\item If the following stopping condition is satisfied: 
+$$\sum_{A\in\Ob} \exp\left(-2n(\hat{f}_\D(A) - m)^2\right) < \delta,$$ 
+then return the top $k$ frequent itemsets in $\Ob$. Otherwise, go to Step 3.
 \end{enumerate}
 \end{minipage}
 }
 
-Note that in out top-$k$ approximation algorithm, the stopping condition depends on the frequency distance between the $k$-th and $(k+1)$-th most frequent itemsets. If these two frequencies tie, it is likely that many samples will  be needed since we cannot distinguish them based on approximated frequencies. Hence we require the number of samples should not exceed $|\D|$. If $|\D|$ samples are needed, we can compute the exact frequencies and apply tie-breaking rules on the ranked results.
+Note that in out top-$k$ approximation algorithm, the stopping condition depends on the $k$-th and $(k+1)$-th largest frequencies. If these two frequencies tie, it is likely that many samples will  be needed since we cannot distinguish them based on approximated frequencies. Hence we require the number of samples should not exceed $|\D|$. If $|\D|$ samples are needed, we can compute the exact frequencies and apply tie-breaking rules on the ranked results.
 
 To be efficient, we must ensure the size of $\Ob$ is small enough. One possible way, which is similar to A-Priori algorithm \cite{AIS93}, is given as follows:
 \begin{enumerate}
