@@ -258,27 +258,27 @@ Combining these ideas, a progressive sampling approximation algorithm can be giv
 \begin{minipage}{.9\textwidth}
 \underline{\bf Top-$k$ Frequent Itemsets Approximation Algorithm with Observed Items}
 
-{\bf Input}: all the items $\I$, the observed items $\Ob\subseteq 2^\I$, transactional dataset $\D\subseteq 2^\I$, sampling increase $\Delta n$, maximum sampling ratio $\alpha$, $k>0$, $\delta>0$.
+{\bf Input}: all the items $\I$, the observed items $\Ob\subseteq 2^\I$, transactional dataset $\D\subseteq 2^\I$, sampling increase $\Delta n$, $k>0$, $\epsilon>0$, $\delta>0$.
 
-{\bf Output}: $k$ itemsets among $\Ob$ that have the highest frequencies with probability at least $1-\delta$.
+{\bf Output}: $k$ itemsets among $\Ob$ that have the highest approximate frequencies s.t. with probability at least $1-\delta$, the approximate frequencies have worst-case error less than $\epsilon$.
 
 \begin{enumerate}
 \item $n\gets 0$. $\hat{f}_\D(A) \gets 0$ for any $A\in\Ob$.
-\item $\Smp \gets \emptyset$.
+\item $\Smp \gets \emptyset$, $N \gets \min\{|\D|,\lceil\frac{1}{2\epsilon^2}(\log(2|\Ob|) + \log (1/\delta))\rceil\}$.
 \item Choose $\Delta n$ itemsets from $\D$ at uniformly random, and denote by $\Delta \Smp$ the chosen $\Delta n$ itemsets.
 \item Label the transactions in $\Delta\Smp$: $\Delta\Smp = \{\tau_1,\cdots,\tau_{\Delta n}\}$.
 \item For each $A\in\Ob$, compute $\hat{f}_\D(A) \gets \frac{1}{n+\Delta n}\left(n\cdot\hat{f}_\D(A)+\sum_{i=1}^{\Delta n}\phi_A(\tau_i)\right)$.
 \item $n \gets n+\Delta n$. $\Smp \gets \Smp \cup \Delta \Smp$
-\item Let $\hat{f}[k]$ and $\hat{f}[k+1]$ be the $k$-th and $(k+1)$-th largest approximated frequencies in $\Ob$ respectively. Compute their middle point $m \gets \frac{1}{2}(\hat{f}[k] + \hat{f}[k+1])$.
-\item If $n>\alpha |\D|$, then return the approximated top-$k$ frequent itemsets $\hat{f}_\D(A)$ for $A\in\Ob$. Otherwise, go to the next step.
+\item Let $\hat{f}[k]$ and $\hat{f}[k+1]$ be the $k$-th and $(k+1)$-th largest approximate frequencies in $\Ob$ respectively. Compute their middle point $m \gets \frac{1}{2}(\hat{f}[k] + \hat{f}[k+1])$.
+\item If $n>N$, then return the approximate top-$k$ frequent itemsets $\hat{f}_\D(A)$ for $A\in\Ob$. Otherwise, go to the next step.
 \item If the following stopping condition is satisfied: 
 $$\sum_{A\in\Ob} \exp\left(-2n(\hat{f}_\D(A) - m)^2\right) < \delta,$$ 
-then return the approximated top $k$ frequent itemsets in $\Ob$. Otherwise, go back to Step 3.
+then return the approximate top $k$ frequent itemsets in $\Ob$. Otherwise, go back to Step 3.
 \end{enumerate}
 \end{minipage}
 }
 
-Note that in out top-$k$ approximation algorithm, the stopping condition depends on the $k$-th and $(k+1)$-th largest frequencies. If these two frequencies tie, it is likely that many samples will  be needed since we cannot distinguish them based on approximated frequencies. Hence we require the number of samples should not exceed $\alpha|\D|$, where $\alpha$ denotes the ratio of how many samples we will take at most among $\D$. If more than $\alpha|\D|$ samples are needed, we can assume that the $k$-th and $(k+1)$-th largest frequencies tie or are very close. Then we directly output the approximated top FIs, since further computations to distinguish the very close FIs on the boundary are often unnecessary in practice. We will discuss the choice of $\alpha$ later in the Evaluation section. 
+Note that in out top-$k$ approximation algorithm, the stopping condition depends on the $k$-th and $(k+1)$-th largest frequencies. If these two frequencies tie, it is likely that many samples will be needed since we cannot distinguish them based on approximated frequencies. Hence we require the number of samples should not exceed $N$, the number of samples that can guarantee the $(\epsilon, \delta)$-approximation. If more than $N$ samples are needed, we can assume that the $k$-th and $(k+1)$-th largest frequencies tie or are very close. Then we directly output the approximated top FIs, since further computations to distinguish the very close FIs on the boundary are often unnecessary in practice. 
 
 To be efficient, we must ensure the size of $\Ob$ is small enough. One possible way, which is similar to A-Priori algorithm \cite{AIS93}, is given as follows:
 \begin{enumerate}
