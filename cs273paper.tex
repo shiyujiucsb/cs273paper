@@ -193,6 +193,7 @@ By fixing the sample $\Smp$, we still have $\lim_{\delta\to 0}\Delta_1'/\Delta_2
 \section{Our Frequent Itemset Approximation Algorithm}
 \label{sec:algs}
 \subsection{Approximating with Precomputed Sample Size}
+\label{sec:nonprg}
 We observe the new bound given in the previous section:
 $$\Delta_2 := \sqrt{\frac{\log(2N) + \log(1/\delta)}{2n}},$$
 where $N = 2^{|\I|}$.
@@ -245,6 +246,7 @@ Note that since $\Ob$ is a subset of $2^{\I}$, this bound $\Delta_2'$ is tighter
 Note that we do not have to estimate for any itemset which is out of the observed ones $\Ob$. Also we need the size of $\Ob$ to be as small as possible. Depending on the practical requirements, the choice of $\Ob$ can vary a lot. We will give a SON-based idea in the next section. However many other methods can be tried, e.g., most potentially frequent itemsets can be suggested by the users' experience or historic records.
 
 \subsection{Approximating Top-$k$ Frequent Itemsets}
+\label{sec:prg}
 In practice we often need to find out the top-$k$ frequent itemsets among the given candidates $\Ob$. We can slightly revise the algorithm given in the previous section to approximate the $k$ most frequent itemsets. A new problem here is how to give the stopping condition. Note that if we only need the top-$k$ frequent itemsets, then our approximation can stop when the members of top-$k$ FIs are fixed with high probability (i.e., at least $1-\delta$). In particular, if with probability at least $1-\delta$, the true frequency of any itemset will not surpass the middle point of the $k$-th and $(k+1)$-th largest approximated frequencies, the $k$ itemsets with largest approximated frequencies should probably be the correct top $k$ ones. By Hoeffding's inequality and union bounds, given the approximated frequencies with $n$ samples, the probability $p$ that there exists an itemset, whose approximated frequency and true frequency are on the different sides of the middle point of the $k$-th and $(k+1)$-th largest approximated frequencies, can be upper bounded as follows: 
 $$\begin{aligned}
 p&=\Pr[\bigvee_{A\in\Ob} (f_\D(A) < m < \hat{f}_\D(A)) \vee (f_\D(A) > m > \hat{f}_\D(A)) ] \\
@@ -286,6 +288,92 @@ To be efficient, we must ensure the size of $\Ob$ is small enough. One possible 
 \item Then we use SON algorithm $\cite{SON95}$ to exactly find the itemsets with frequencies at least $T$. For efficiency, in SON we only consider the itemsets with 2 items, like what \cite{LRU14} did. The reason is that the itemsets of sizes larger than 2 usually have much lower frequencies than pairs. Clearly SON algorithm can find at most $k^2$ candidate itemsets.
 \item We use our (top-$k$) approximation algorithms to estimate the frequencies of the candidate itemsets (or select the top-$k$ ones).
 \end{enumerate}
+
+\section{Evaluation}
+In this section we present our evaluation results. 
+We try to find the top-$K$ frequent itemsets (in pairs) by two algorithms proposed in this paper:
+\begin{itemize}
+\item {\bf A-Priori + Precomputed Sample Size}. We first use A-Priori algorithm to find the top-$K$ most frequent items, and then use the algorithm (discussed in Section \ref{sec:nonprg}) to approximate the frequencies of all the pairs formed by the $K$ items. At last we sort the frequencies and find the top-$K$ pairs with the highest approximate frequencies. Note that the sample size can be precomputed.
+\item {\bf A-Priori + Progressive Sampling}. This is given in Section \ref{sec:prg}. Note that the sampling is progressive, i.e., there is no precomputed sample size.
+\end{itemize}
+We compare our algorithms with the state-of-art \cite{RU15}, which is a progressive sampling approximation. For each comparison, our code for each algorithm is similarly organized except that the bounds are different. 
+For the performance, we consider time complexity (running time), sample size, and precision/recall.
+
+\subsection{Setup}
+We implemented our algorithms by Python 3.4.3 and ran the programs on CSIL, a Fedora 20 (Linux) cluster at UCSB. To reduce the entire running time in the experiments (it is very time consuming to compute the exact solutions), for each dataset, we select the first 70 items and then approximate the frequencies of their pairs. By default we choose that the sample size increases by 100 for each round, and $\epsilon = 0.05$, $\delta = 0.01\%$.
+
+\subsection{Datasets}
+
+\begin{table}[!t]
+\centering
+\begin{tabular}{l | r r}
+\specialrule{1pt}{1pt}{1pt}
+Name & No. of Transactions & No. of items \\
+\hline
+accidents & 340183 & 468 \\
+chess & 3196 & 75 \\
+connect & 67557 & 129 \\
+kosarak & 990002 & 41270 \\
+mushroom & 8124 & 119 \\
+pumsb & 49046 & 7116 \\
+pumsb star & 49046 &  7116 \\
+retail  & 88162 & 16470 \\
+\specialrule{1pt}{1pt}{1pt}
+
+\end{tabular}
+\caption{Dataset characteristics}
+\label{tab:data}
+\end{table}
+
+For consistency, we choose FIMI'03 data repository \cite{GZ04}, the real-world data set from \cite{RU15} (the data repository is available at \texttt{http://fimi.ua.ac.be/data/}). The item and transaction data sizes of the FIMI datasets are given in Table \ref{tab:data}. We will use these data sets to evaluate the samples sizes and worst case errors of our algorithms, and compare our results with the state-of-art algorithms.
+
+\subsection{Results on Approximation with Precomputed Sample Size}
+Table \ref{tab:res1} gives the evaluation results for our algorithms discussed in Section \ref{sec:nonprg}.
+
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+\begin{table}[!t]
+\centering
+\begin{tabular}{l | r r r | r r r}
+\specialrule{1pt}{1pt}{1pt}
+Item & \specialcell{Used time (sec)\\(ours)} & \specialcell{Sample size\\ (ours)} & \specialcell{Precision\\(ours)} & \specialcell{Used time (sec)\\\cite{RU15}} & \specialcell{Sample size\\\cite{RU15}} & \specialcell{Precision\\\cite{RU15}} \\
+\hline
+accidents & 20.74 & 3527 & 98\% & 364.66 & 63939 & 99\% \\
+chess & 22.51 & 3196 & 100\% & 23.66 & 3196 & 100\% \\
+connect &  &  &  &  &  &  \\
+kosarak &  &  &  &  &  &  \\
+mushroom & 19.51 & 3539 & 98\% & 115.66 & 22519 & 100\% \\
+pumsb & 29.80 & 3539 & 95\% & 2160.51 & 224286 & 100\% \\
+pumsb star &  &  &  &  &  &  \\
+retail &  &  &  &  &  &  \\
+\specialrule{1pt}{1pt}{1pt}
+\end{tabular}
+\caption{Results of our approximation algorithms with precomputed sample size and \cite{RU15}.}
+\label{tab:res1}
+\end{table}
+
+\subsection{Comparisons on Approximation with Progressive Sampling}
+Table \ref{tab:res2} gives the evaluation results for our algorithms discussed in Section \ref{sec:prg}.
+
+\begin{table}[!t]
+\centering
+\begin{tabular}{l | r r r | r r r}
+\specialrule{1pt}{1pt}{1pt}
+Item & \specialcell{Used time (sec)\\(ours)} & \specialcell{Sample size\\ (ours)} & \specialcell{Precision\\(ours)} & \specialcell{Used time (sec)\\\cite{RU15}} & \specialcell{Sample size\\\cite{RU15}} & \specialcell{Precision\\\cite{RU15}} \\
+\hline
+accidents & 18.69 & 3600 & 98\% & 357.37 & 60600 & 99\% \\
+chess & 20.40 & 3200 & 98\% & 23.74 & 3200 & 100\% \\
+connect &  &  &  &  &  &  \\
+kosarak &  &  &  &  &  &  \\
+mushroom & 17.49 & 3600 & 98\% & 40.73 & 8200 & 98\% \\
+pumsb &  &  &  &  &  &  \\
+pumsb star &  &  &  &  &  &  \\
+retail &  &  &  &  &  &  \\
+\specialrule{1pt}{1pt}{1pt}
+\end{tabular}
+\caption{Comparisons on our progressive approximation algorithms and \cite{RU15}.}
+\label{tab:res2}
+\end{table}
 
 %\bibliographystyle{./IEEEtran}
 \bibliographystyle{plain}
