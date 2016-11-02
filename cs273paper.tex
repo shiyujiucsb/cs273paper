@@ -300,7 +300,7 @@ We compare our algorithms with the state-of-art \cite{RU15}, which is a progress
 For the performance, we consider time complexity (running time), sample size, and precision/recall.
 
 \subsection{Setup}
-We implemented our algorithms by Python 3.4.3 and ran the programs on CSIL, a Fedora 20 (Linux) cluster at UCSB. To reduce the entire running time in the experiments (it is very time consuming to compute the exact solutions), for each dataset, we select the first 70 items and then approximate the frequencies of their pairs. By default we choose that the sample size increases by 100 for each round, and $\epsilon = 0.05$, $\delta = 0.01\%$.
+We implemented our algorithms by Python 3.4.3 and ran the programs on knot cluster (one DL580 nodes with 4 Intel X7550 eight core processors and 512GB RAM) at UCSB Center for Scientific Computing. To reduce the entire running time in the experiments (it is very time consuming to compute the exact solutions), for each dataset, we selected the first 70 items and then approximate the top 10 frequencies of their pairs. Each approximation was repeated by 10 times and we took the averaged results. By default we chose that the sample size increases by 100 for each round, and $\epsilon = 0.05$, $\delta = 0.01\%$.
 
 \subsection{Datasets}
 
@@ -327,7 +327,7 @@ retail  & 88162 & 16470 \\
 
 For consistency, we choose FIMI'03 data repository \cite{GZ04}, the real-world data set from \cite{RU15} (the data repository is available at \texttt{http://fimi.ua.ac.be/data/}). The item and transaction data sizes of the FIMI datasets are given in Table \ref{tab:data}. We will use these data sets to evaluate the samples sizes and worst case errors of our algorithms, and compare our results with the state-of-art algorithms.
 
-\subsection{Results on Approximation with Precomputed Sample Size}
+\subsection{Comparison Results}
 Table \ref{tab:res1} gives the evaluation results for our algorithms discussed in Section \ref{sec:nonprg}.
 
 \newcommand{\specialcell}[2][c]{%
@@ -340,7 +340,7 @@ Item & \specialcell{Used time (sec)\\(ours)} & \specialcell{Sample size\\ (ours)
 \hline
 accidents & 20.74 & 3527 & 98\% & 364.66 & 63939 & 99\% \\
 chess & 22.51 & 3196 & 100\% & 23.66 & 3196 & 100\% \\
-connect &  &  &  &  &  &  \\
+connect & 41.42 & 3539 & 99\% & 641.55 & 68561 & 100\% \\
 kosarak &  &  &  &  &  &  \\
 mushroom & 19.51 & 3539 & 98\% & 115.66 & 22519 & 100\% \\
 pumsb & 29.80 & 3539 & 95\% & 2160.51 & 224286 & 100\% \\
@@ -352,7 +352,6 @@ retail &  &  &  &  &  &  \\
 \label{tab:res1}
 \end{table}
 
-\subsection{Comparisons on Approximation with Progressive Sampling}
 Table \ref{tab:res2} gives the evaluation results for our algorithms discussed in Section \ref{sec:prg}.
 
 \begin{table}[!t]
@@ -363,12 +362,12 @@ Item & \specialcell{Used time (sec)\\(ours)} & \specialcell{Sample size\\ (ours)
 \hline
 accidents & 18.69 & 3600 & 98\% & 357.37 & 60600 & 99\% \\
 chess & 20.40 & 3200 & 98\% & 23.74 & 3200 & 100\% \\
-connect &  &  &  &  &  &  \\
-kosarak &  &  &  &  &  &  \\
+connect & 52.71 & 3600 & 99\% & 704.79 & 60400 & 100\% \\
+kosarak & 21.54 & 3600 & 89\% & 168.22 & 32400 & 96\% \\
 mushroom & 17.49 & 3600 & 98\% & 40.73 & 8200 & 98\% \\
-pumsb &  &  &  &  &  &  \\
-pumsb star &  &  &  &  &  &  \\
-retail &  &  &  &  &  &  \\
+pumsb & 78.16 & 3600 & 95 & 788.24 & 38000 & 99\% \\
+pumsb star & 60.90 & 3600 & 95\% & 480.95 & 29300 & 98\% \\
+retail & 13.75 & 3600 & 88\% & 147.76 & 29300 & 97\% \\
 \specialrule{1pt}{1pt}{1pt}
 \end{tabular}
 \caption{Comparisons on our progressive approximation algorithms and \cite{RU15}.}
