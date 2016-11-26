@@ -178,7 +178,7 @@ $$\begin{aligned}
 \end{aligned}$$
 where $N = 2^{|\I|}$. 
 Equivalently for any $\delta>0$, with probability at least $1-\delta$,
-$$|f_\D(A)-f_\Smp(A)| \leq \sqrt{\frac{\log(2N) + \log(1/\delta)}{2n}} =: \Delta_2.$$
+$$\max_{A\subseteq\I}|f_\D(A)-f_\Smp(A)| \leq \sqrt{\frac{\log(2N) + \log(1/\delta)}{2n}} =: \Delta_2.$$
 Note that the above bound $\Delta_2$ is very similar to the result in Section 3.4, \cite{BBL04}. Now the new bound $\Delta_2$ can generate a new stopping condition for an approximation algorithm.
 
 Recall the classical upper bound given in Section \ref{sec:rb}.
@@ -227,9 +227,9 @@ Note that since $\Ob$ is a subset of $2^{\I}$, this bound $\Delta_2'$ is tighter
 
 \framebox{
 \begin{minipage}{.9\textwidth}
-\underline{\bf Frequent Itemsets Approximation Algorithm with Observed Items}
+\underline{\bf Frequent Itemsets Approximation Algorithm with Observed Itemsets}
 
-{\bf Input}: all the items $\I$, the observed items $\Ob\subseteq 2^\I$, transactional dataset $\D\subseteq 2^\I$, $\epsilon>0$, $\delta>0$.
+{\bf Input}: all the items $\I$, the observed itemsets $\Ob\subseteq 2^\I$, transactional dataset $\D\subseteq 2^\I$, $\epsilon>0$, $\delta>0$.
 
 {\bf Output}: approximated frequencies $\hat{f}_\D(A)$ for each $A\in\Ob$ s.t. with probability at least $1-\delta$, $|\hat{f}_\D(A)|\leq \epsilon$ for any $A\in\Ob$.
 
@@ -258,9 +258,9 @@ Combining these ideas, a progressive sampling approximation algorithm can be giv
 
 \framebox{
 \begin{minipage}{.9\textwidth}
-\underline{\bf Top-$k$ Frequent Itemsets Approximation Algorithm with Observed Items}
+\underline{\bf Top-$k$ Frequent Itemsets Approximation Algorithm with Observed Itemsets}
 
-{\bf Input}: all the items $\I$, the observed items $\Ob\subseteq 2^\I$, transactional dataset $\D\subseteq 2^\I$, sampling increase $\Delta n$, $k>0$, $\epsilon>0$, $\delta>0$.
+{\bf Input}: all the items $\I$, the observed itemsets $\Ob\subseteq 2^\I$, transactional dataset $\D\subseteq 2^\I$, sampling increase $\Delta n$, $k>0$, $\epsilon>0$, $\delta>0$.
 
 {\bf Output}: $k$ itemsets among $\Ob$ that have the highest approximate frequencies s.t. with probability at least $1-\delta$, the approximate frequencies have worst-case error less than $\epsilon$.
 
@@ -351,7 +351,7 @@ Clearly our new bound outperforms the state-of-art, implying that to achieve a c
 
 \subsection{Comparison Results}
 We compare the performance between our methods and the state-of-art \cite{RU15}.
-Table \ref{tab:res1} gives the evaluation results for our algorithms discussed in Section \ref{sec:nonprg}.
+Table \ref{tab:res1} gives the evaluation results for our algorithms discussed in Section \ref{sec:nonprg}. The algorithms try to find the top-100 most frequent itemsets with two items. Note that we have significantly confined the observed itemsets, and thus it is efficient to compute the upper bound in \cite{RU15}, i.e., we do not need to consider each subset of $\I$. 
 By using our new error upper bound, the running time and sample size are significantly reduced compared to \cite{RU15}, while the accuracy is still quite competitive, i.e., all are larger than 90\%. This is natural since \cite{RU15} takes more samples and thus the estimation should be more accurate. In the dataset chess, every transaction is sampled since its data volume is very small. In the dataset connect, our sample size is only 1/20 of \cite{RU15}'s, but the accuracy is almost the same.
 
 \newcommand{\specialcell}[2][c]{
