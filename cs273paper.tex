@@ -151,7 +151,7 @@ $$2^{|\I|}=\lim_{s\to 0}\alpha(s) \leq \lim_{s\to 0}\beta(s) = |\mathcal{V}|.$$
 Hence $\mathcal{V} = 2^\I$. This implies any summation over only a part of $2^\I$ must be less than the summation over all of $2^\I$. Thus one cannot use Inequality (\ref{eqn:ru}) to reach Theorem 3 in \cite{RU15}.
 
 \subsection{New Bound Without Rademacher Average}
-In statistical learning theory, the upper bound given by Theorem \ref{thm:old} is for the general case, i.e., the set of transactions $\D$ can be infinite or finite. However, for frequent itemsets mining, the transactional data set $\D$ is always finite. Given the assumption that $\D$ is finite, can we establish any upper bound without using the Rademacher average? Following the similar lines given by Boucheron, Bousquet and Lugosi \cite{BBL04}, we can give an affirmative answer.
+In statistical learning theory, the upper bound given by Theorem \ref{thm:old} is for the general case, i.e., the set of itemsets can be infinite or finite. However, for frequent itemsets mining, the number of itemsets is always finite (at most $2^{|\I|}$). Given this assumption, can we establish any upper bound without using the Rademacher average? Following the similar lines given by Boucheron, Bousquet and Lugosi \cite{BBL04} and Toivonen \cite{Toi96}, we can give a positive answer.
 
 For any $\epsilon > 0$,
 $$\begin{aligned}
@@ -223,7 +223,7 @@ Since the brute-force algorithm above is computationally infeasible when $|\I|$ 
 \newcommand{\Ob}{\mathbf{Ob}}
 Denote by $\Ob$ the set of the itemsets to be observed. Then the worst approximation error is defined as the maximum error on every itemset in $\Ob$. By the same reasoning in the derivation of $\Delta_2$, we have the adjusted new bound:
 $$\Delta_2' := \sqrt{\frac{\log(2|\Ob|) + \log(1/\delta)}{2n}}.$$
-Note that since $\Ob$ is a subset of $2^{\I}$, this bound $\Delta_2'$ is tighter than $\Delta_2$. The approximation algorithm will also be revised as follows.
+Since $\Ob$ is a subset of $2^{\I}$, this bound $\Delta_2'$ is tighter than $\Delta_2$. Note that Toivonen (Corollary 2, \cite{Toi96}) also found a similar result as our bound here. The approximation algorithm will also be revised as follows.
 
 \framebox{
 \begin{minipage}{.9\textwidth}
@@ -247,7 +247,7 @@ Note that we do not have to estimate for any itemset which is out of the observe
 
 \subsection{Approximating Top-$k$ Frequent Itemsets}
 \label{sec:prg}
-In practice we often need to find out the top-$k$ frequent itemsets among the given candidates $\Ob$. We can slightly revise the algorithm given in the previous section to approximate the $k$ most frequent itemsets. A new problem here is how to give the stopping condition. Note that if we only need the top-$k$ frequent itemsets, then our approximation can stop when the members of top-$k$ FIs are fixed with high probability (i.e., at least $1-\delta$). In particular, if with probability at least $1-\delta$, the true frequency of any itemset will not surpass the middle point of the $k$-th and $(k+1)$-th largest approximated frequencies, the $k$ itemsets with largest approximated frequencies should probably be the correct top $k$ ones. By Hoeffding's inequality and union bounds, given the approximated frequencies with $n$ samples, the probability $p$ that there exists an itemset, whose approximated frequency and true frequency are on the different sides of the middle point of the $k$-th and $(k+1)$-th largest approximated frequencies, can be upper bounded as follows: 
+In practice we often need to find out the top-$k$ frequent itemsets among the given candidates $\Ob$. We can slightly revise the algorithm given in the previous section to approximate the $k$ most frequent itemsets. A new problem here is how to give the stopping condition. Note that if we only need the top-$k$ frequent itemsets, then our approximation can stop when the members of top-$k$ FIs are fixed with high probability (i.e., at least $1-\delta$). In particular, if with probability at least $1-\delta$, the true frequency of any itemset will not surpass the middle point of the $k$-th and $(k+1)$-th largest approximated frequencies, the $k$ itemsets with largest approximated frequencies should probably be the correct top $k$ ones. By Hoeffding's inequality and union bounds, given the approximate frequencies with $n$ samples, the probability $p$ that there exists an itemset, whose approximated frequency and true frequency are on the different sides of the middle point of the $k$-th and $(k+1)$-th largest approximated frequencies, can be upper bounded as follows: 
 $$\begin{aligned}
 p&=\Pr[\bigvee_{A\in\Ob} (f_\D(A) < m < \hat{f}_\D(A)) \vee (f_\D(A) > m > \hat{f}_\D(A)) ] \\
 &\leq \sum_{A\in\Ob} \exp\left(-2n(\hat{f}_\D(A) - m)^2\right),
@@ -288,7 +288,7 @@ To be efficient, we must ensure the size of $\Ob$ is small enough. One possible 
 \item Then we use SON algorithm $\cite{SON95}$ to exactly find the itemsets with frequencies at least $T$. For efficiency, in SON we only consider the itemsets with 2 items, like what \cite{LRU14} did. The reason is that the itemsets of sizes larger than 2 usually have much lower frequencies than pairs. Clearly SON algorithm can find at most $k^2$ candidate itemsets.
 \item We use our (top-$k$) approximation algorithms to estimate the frequencies of the candidate itemsets (or select the top-$k$ ones).
 \end{enumerate}
-Since we only consider frequent pairs, we can also build our scheme on PCY or Multistage algorithms. The major difference between PCY, Multistage and A-Priori is how to use the main memory for the first pass, in which we select the most frequent items. Hence the difference does not affect our sampling.
+Since we only consider frequent pairs, we can also build our scheme on PCY or Multistage algorithms. The major difference between PCY, Multistage and A-Priori is how to fully use the main memory for the passes, in which we select the most frequent items or itemsets. Hence the difference does not affect our sampling. Also we can use Toivonen's algorithm instead of SON to mine frequent itemsets with more than 2 items.
 
 \section{Evaluation}
 \label{sec:eval}
